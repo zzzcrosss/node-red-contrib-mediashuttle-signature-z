@@ -1,0 +1,194 @@
+<script type="text/javascript">
+RED.nodes.registerType("mediashuttlesignature-z", {
+  category: "MediaShuttle",
+  color: "#5DADE2",
+  icon: "key.svg",
+  paletteLabel: "MS Signature",
+  defaults: {
+    name:            { value: "" },
+    portalPrefix:    { value: "" },
+    portalPrefixType:{ value: "str" },
+    packageId:       { value: "" },
+    packageIdType:   { value: "str" },
+    requestType:     { value: "GetPackageDetails" },
+    requestTypeType: { value: "str" }
+  },
+  credentials: {
+    registrationKey: { type: "password" }
+  },
+  inputs: 1,
+  outputs: 1,
+  label: function () {
+    return this.name || "MediaShuttleSignature-z";
+  },
+  oneditprepare: function () {
+
+    // --- portalPrefix TypedInput ---
+    $("#node-input-portalPrefix").typedInput({
+      typeField: "#node-input-portalPrefixType",
+      types: ["str", "msg", "flow", "global", "env"]
+    });
+
+    // --- packageId TypedInput ---
+    $("#node-input-packageId").typedInput({
+      typeField: "#node-input-packageIdType",
+      types: ["str", "msg", "flow", "global", "env"]
+    });
+
+    // --- requestType TypedInput with fixed-option select for "str" ---
+    $("#node-input-requestType").typedInput({
+      typeField: "#node-input-requestTypeType",
+      types: [
+        {
+          value: "str",
+          label: "value",
+          icon: "fa fa-list",
+          options: [
+            { value: "GetPackageDetails",      label: "Get Package Details (GET)" },
+            { value: "RedirectPackageMetadata", label: "Redirect Package Metadata (POST)" }
+          ]
+        },
+        "msg", "flow", "global", "env"
+      ]
+    });
+
+    // Show POST-body hint only when a static "RedirectPackageMetadata" is selected
+    function updatePostHint() {
+      const isStatic  = $("#node-input-requestType").typedInput("type") === "str";
+      const isPostType = $("#node-input-requestType").typedInput("value") === "RedirectPackageMetadata";
+      if (isStatic && isPostType) {
+        $("#post-hint").show();
+      } else {
+        $("#post-hint").hide();
+      }
+    }
+
+    $("#node-input-requestType").on("change", updatePostHint);
+    updatePostHint();
+  }
+});
+</script>
+
+<script type="text/html" data-template-name="mediashuttlesignature-z">
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-portalPrefix"><i class="fa fa-globe"></i> Portal Prefix</label>
+    <input type="text" id="node-input-portalPrefix" placeholder="your-portal-subdomain">
+    <input type="hidden" id="node-input-portalPrefixType">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-packageId"><i class="fa fa-cube"></i> Package ID</label>
+    <input type="text" id="node-input-packageId">
+    <input type="hidden" id="node-input-packageIdType">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-registrationKey"><i class="fa fa-key"></i> Registration Key</label>
+    <input type="password" id="node-input-registrationKey"
+           placeholder="stored encrypted — leave blank to pass via msg.registrationKey">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-requestType"><i class="fa fa-exchange"></i> Request Type</label>
+    <input type="text" id="node-input-requestType">
+    <input type="hidden" id="node-input-requestTypeType">
+  </div>
+
+  <div class="form-row" id="post-hint" style="display:none;">
+    <div class="form-tips">
+      <b>POST body:</b> provide the request body via <code>msg.payload</code>.
+      Strings are sent as-is; objects are automatically serialised to JSON.
+    </div>
+  </div>
+
+</script>
+
+<script type="text/html" data-help-name="mediashuttlesignature-z">
+  <p>
+    <b>MediaShuttleSignature-z</b> generates signed URLs for the
+    Signiant MediaShuttle Metadata API and prepares messages
+    for direct use with the Node-RED <b>HTTP Request</b> node.
+  </p>
+
+  <h3>Configuration</h3>
+  <p>
+    Each field can be set as a static value in the node editor
+    or sourced dynamically from a <code>msg</code>, <code>flow</code>,
+    <code>global</code>, or environment variable using the type selector.
+  </p>
+  <dl class="message-properties">
+    <dt>Portal Prefix <span class="property-type">str | msg | flow | global | env</span></dt>
+    <dd>MediaShuttle portal subdomain (e.g. <code>myportal</code>).</dd>
+
+    <dt>Package ID <span class="property-type">str | msg | flow | global | env</span></dt>
+    <dd>MediaShuttle package identifier.</dd>
+
+    <dt>Registration Key <span class="property-type">credential</span></dt>
+    <dd>
+      HMAC signing secret. Stored encrypted in Node-RED.
+      Can be overridden at runtime via <code>msg.registrationKey</code>
+      (note: message properties are not encrypted in transit).
+    </dd>
+
+    <dt>Request Type <span class="property-type">str | msg | flow | global | env</span></dt>
+    <dd>
+      Selects the API operation. When set to a static value, choose from the
+      dropdown. When sourced dynamically, allowed string values are:
+      <ul>
+        <li><code>GetPackageDetails</code></li>
+        <li><code>RedirectPackageMetadata</code></li>
+      </ul>
+    </dd>
+  </dl>
+
+  <h3>Inputs</h3>
+  <dl class="message-properties">
+    <dt>msg.registrationKey <span class="property-type">string</span></dt>
+    <dd>
+      Optional runtime override for the Registration Key credential.
+    </dd>
+
+    <dt>msg.payload <span class="property-type">string | object</span></dt>
+    <dd>
+      Request body for <code>RedirectPackageMetadata</code> (POST) only.
+      Objects are automatically serialised to JSON.
+    </dd>
+  </dl>
+
+  <h3>Outputs</h3>
+  <dl class="message-properties">
+    <dt>msg.url <span class="property-type">string</span></dt>
+    <dd>Signed URL ready for use by an HTTP Request node.</dd>
+
+    <dt>msg.method <span class="property-type">string</span></dt>
+    <dd>HTTP method set automatically to <code>GET</code> or <code>POST</code>.</dd>
+
+    <dt>msg.headers <span class="property-type">object</span></dt>
+    <dd>
+      Set for POST requests only: <code>Content-Type: application/json</code>.
+      Merged with any pre-existing <code>msg.headers</code>.
+    </dd>
+  </dl>
+
+  <h3>Typical Flow</h3>
+  <pre>
+[Inject / Function]
+  msg.portalPrefix    (if not set in node config)
+  msg.packageId       (if not set in node config)
+  msg.registrationKey (if not set as credential)
+  msg.requestType     (if not set in node config)
+  msg.payload         (POST only)
+        ↓
+[MediaShuttleSignature-z]
+        ↓
+[HTTP Request]
+  URL    → msg.url
+  Method → msg.method
+  </pre>
+</script>

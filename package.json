@@ -1,0 +1,33 @@
+{
+  "name": "node-red-contrib-mediashuttle-signature-z",
+  "version": "1.1.0",
+  "description": "Node-RED node to generate signed URLs for Signiant MediaShuttle Metadata APIs",
+  "keywords": [
+    "node-red",
+    "mediashuttle",
+    "signiant",
+    "signature",
+    "metadata",
+    "hmac",
+    "security"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "node-red": {
+    "version": ">=1.0.0",
+    "nodes": {
+      "mediashuttlesignature-z": "mediashuttle-signature-z.js"
+    }
+  },
+  "files": [
+    "mediashuttle-signature-z.js",
+    "mediashuttle-signature-z.html",
+    "icons/",
+    "package.json",
+    "README.md"
+  ],
+  "dependencies": {}
+}
