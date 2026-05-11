@@ -1,3 +1,21 @@
+## ⚠️ Project Origin
+
+This project is an **adaptation and extension** of the original
+MediaShuttle Metadata Signature Generator developed by Signiant.
+
+Original project:
+- Repository: https://github.com/Signiant/mediashuttle-metadata-signature-generator
+- Author: Signiant Inc.
+
+Changes and additions in this project:
+- Adaptation as a Node-RED custom node
+- Integration with Node-RED credential management
+- Support for TypedInput (msg / flow / global / env)
+- Automatic preparation of HTTP request parameters
+- Node-RED–specific error handling and status reporting
+
+------------------------------------------------------------------------------------------------------------------------------
+
 node-red-contrib-mediashuttle-signature-z 
 
 Node-RED custom node to generate MediaShuttle SIG1 (HMAC-SHA256) signed URLs for the MediaShuttle Metadata API (v3.0). 
